@@ -1,6 +1,6 @@
 # Assignment: ASSIGNMENT 3
-# Name: Figueroa, Holl21
-# Date: 2021-03-26
+# Name: Figueroa, Holly
+# Date: 2021-04-04
 
 ## Load the ggplot2 package
 library(ggplot2)
