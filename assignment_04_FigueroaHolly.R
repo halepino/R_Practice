@@ -34,7 +34,7 @@ ggplot(heights_df, aes(race)) + geom_bar()+ coord_flip()
 ## assign it to the `covid_df` dataframe
 covid_df <- read.csv("data/nytimes/covid-19-data/us-states.csv")
 
-## Parse the date column using `as.Date()``w
+## Parse the date column using `as.Date()``
 covid_df$date <- as.Date(covid_df$date)
 
 
@@ -62,7 +62,7 @@ ggplot(data=florida_df, aes(x=date, group=1)) +
 
 ## Add a legend to the plot using `scale_colour_manual`
 ## Add a blank (" ") label to the x-axis and the label "Cases" to the y axis
-ggplot(data=florida_df, aes(x=date, date=1)) +
+ggplot(data=florida_df, aes(x=date, group=1)) +
   geom_line(aes(y = cases, colour = "Florida")) +
   geom_line(data=ny_df, aes(y = cases,colour="New York")) +
   geom_line(data=california_df, aes(y = cases, colour="California")) +
