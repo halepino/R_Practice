@@ -7,10 +7,10 @@ library(ggplot2)
 theme_set(theme_minimal())
 
 ## Set the working directory to the root of your DSC 520 directory
-setwd("C:/DataLore/R_Projects/dsc520")
+setwd("C:/DataLore/R_Projects")
 
 ## Load the `data/r4ds/heights.csv` to
-heights_df <- read.csv("data/r4ds/heights.csv")
+heights_df <- read.csv("hello-world/dsc520/data/r4ds/heights.csv")
 
 # https://ggplot2.tidyverse.org/reference/geom_boxplot.html
 ## Create boxplots of sex vs. earn and race vs. earn using `geom_point()` and `geom_boxplot()`
@@ -32,7 +32,7 @@ ggplot(heights_df, aes(race)) + geom_bar()+ coord_flip()
 # https://www.rdocumentation.org/packages/ggplot2/versions/3.3.0/topics/geom_path
 ## Load the file `"data/nytimes/covid-19-data/us-states.csv"` and
 ## assign it to the `covid_df` dataframe
-covid_df <- read.csv("data/nytimes/covid-19-data/us-states.csv")
+covid_df <- read.csv("hello-world/dsc520/data/nytimes/covid-19-data/us-states.csv")
 
 ## Parse the date column using `as.Date()``
 covid_df$date <- as.Date(covid_df$date)

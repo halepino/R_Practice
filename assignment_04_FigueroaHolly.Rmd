@@ -3,10 +3,9 @@ title: "ASSIGNMENT 4"
 author: "Holly Figueroa"
 date: '2021-04-20'
 output:
-  pdf_document: 
-    fig_crop: no
-  html_document: default
   word_document: default
+  html_document: default
+  pdf_document: default
 bibliography: bibliography.bib
 ---
 
@@ -47,8 +46,8 @@ A foot note here [^1]
 
 library(ggplot2)
 
-heights_df <- read.csv("dsc520/data/r4ds/heights.csv..")
-covid_df <- read.csv("dsc520/data/nytimes/covid-19-data/us-states.csv..")
+heights_df <- read.csv("dsc520/data/r4ds/heights.csv")
+covid_df <- read.csv("dsc520/data/nytimes/covid-19-data/us-states.csv")
 california_df <- covid_df[ which( covid_df$state == "California"), ]
 ny_df <- covid_df[ which( covid_df$state == "New York"), ]
 florida_df <- covid_df[ which( covid_df$state == "Florida"), ]
