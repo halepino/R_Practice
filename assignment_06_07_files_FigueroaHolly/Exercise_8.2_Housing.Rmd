@@ -1,0 +1,66 @@
+---
+title: "exercise_8.2_FigueroaHolly"
+author: "Holly Figueroa"
+date: "5/3/2021"
+output: pdf_document
+---
+
+Packages:
+QuantPsych
+Rcmdr
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#i  
+Explain any transformations or modifications you made to the dataset
+
+#ii  
+Create two variables; one that will contain the variables Sale Price and Square Foot of Lot (same variables used from previous assignment on simple regression) and one that will contain Sale Price and several additional predictors of your choice. Explain the basis for your additional predictor selections.
+
+#iii
+Execute a summary() function on two variables defined in the previous step to compare the model results. What are the R2 and Adjusted R2 statistics? Explain what these results tell you about the overall model. Did the inclusion of the additional predictors help explain any large variations found in Sale Price?
+
+>pg249
+
+#iv  
+Considering the parameters of the multiple regression model you have created. What are the standardized betas for each parameter and what do the values indicate?
+> 
+           
+#v  
+Calculate the confidence intervals for the parameters in your model and explain what the results indicate.
+            
+#vi  
+Assess the improvement of the new model compared to your original model (simple regression model) by testing whether this change is significant by performing an analysis of variance.
+            
+#vii  
+Perform casewise diagnostics to identify outliers and/or influential cases, storing each function's output in a dataframe assigned to a unique variable name.
+            
+#viii
+Calculate the standardized residuals using the appropriate command, specifying those that are +-2, storing the results of large residuals in a variable you create.
+            
+#ix
+Use the appropriate function to show the sum of large residuals.
+            
+#x  
+Which specific variables have large residuals (only cases that evaluate as TRUE)?
+            
+#xii  
+Investigate further by calculating the leverage, cooks distance, and covariance rations. Comment on all cases that are problematics.
+
+#xiii  
+Perform the necessary calculations to assess the assumption of independence and state if the condition is met or not.
+
+#xiv  
+Perform the necessary calculations to assess the assumption of no multicollinearity and state if the condition is met or not.
+            
+#xv  
+Visually check the assumptions related to the residuals using the plot() and hist() functions. Summarize what each graph is informing you of and if any anomalies are present.
+            
+#xvi  
+Overall, is this regression model unbiased? If an unbiased regression model, what does this tell us about the sample vs. the entire population model?
+
+Submission Instructions
+
+You can either save your work in your own repository and submit a link to GitHub or you can submit a PDF of your R Markdown files to the assignment link.  Make sure you do not just submit an R Markdown file – it needs to either be PDF or a GitHub link.
+
