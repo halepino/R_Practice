@@ -1,0 +1,204 @@
+---
+title: "exercise_8.2_FigueroaHolly"
+author: "Holly Figueroa"
+date: "5/3/2021"
+output: pdf_document
+---
+
+Packages:
+QuantPsych
+Rcmdr
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#i  
+Explain any transformations or modifications you made to the dataset
+
+```{r, echo=FALSE, include=FALSE}
+#load libraries
+library(readxl)
+library(dplyr)
+library(ggplot2)
+library(psych)
+library(GGally)
+library(purrr)
+library(QuantPsyc)
+```
+
+```{r}
+#load housing df
+housing_wk8 <- read_xlsx("hello-world/assignment_06_07_files_FigueroaHolly/week-6-housing.xlsx")
+
+#Data changes
+colnames(housing_wk8)[c(1,2)]<-c("sale_date", "sale_price")
+colnames(housing_wk8)
+
+```
+
+#ii  
+Create two variables; one that will contain the variables Sale Price and Square Foot of Lot (same variables used from previous assignment on simple regression) and one that will contain Sale Price and several additional predictors of your choice. Explain the basis for your additional predictor selections.
+
+```{r echo=TRUE, include=TRUE}
+housing_sp_lot <- (housing_wk8)[c(2,22)]
+head(housing_sp_lot)
+
+housing_sp_vars <- (housing_wk8)[c(2,13,14,15,16,22)]
+head(housing_sp_vars)
+
+```
+
+
+#iii
+Execute a summary() function on two variables defined in the previous step to compare the model results. What are the R2 and Adjusted R2 statistics? Explain what these results tell you about the overall model. Did the inclusion of the additional predictors help explain any large variations found in Sale Price?
+
+```{r echo=TRUE, include=TRUE}
+
+housing_lm_1 <- lm(sale_price ~ sq_ft_lot, data = housing_sp_lot)
+housing_lm_2 <- lm(sale_price ~ building_grade 
+                   + square_feet_total_living + bedrooms 
+                   + bath_full_count + sq_ft_lot, data = housing_sp_vars)
+
+summary(housing_lm_1)
+summary(housing_lm_2)
+
+```
+> For a single variable regression, like our first model, "housing_lm_1" the R2 statistic is the square of the correlation between sale price and lot size. Specifically, it represents how much variability in sale price can be accounted for by lot size. The adjusted R sqaured represents the same measure in regards to sale price, but it reflects how it would be expected to change when applied to more/new data. When both values are close, it indicates that the model will generalize well. The first model indicates that variability in lot size explains almost none of the changes sale price, at approx 0.01 for both R2 and adjusted R2. The second model has much higher values compared to the first. The second model indicates that the predicting variables account for roughly 21% of the variabiliy found in sale price. Because the both values for R2 and adjusted R2 are nearly identical, we can also conclude that the second model has good generalizability. 
+
+#iv  
+Considering the parameters of the multiple regression model you have created. What are the standardized betas for each parameter and what do the values indicate?
+```{r}
+
+lm.beta(housing_lm_1)
+lm.beta(housing_lm_2)
+
+```
+> The standardized betas allow variables of different scales to be compared by showing the impact of each variable in terms of standard deviation. The ouput for the standardized betas for the linear model "housing_lm_1" indicate that with every standard devation increase in size of the property's lot size by square feet, there is an increase in the sale price by 0.11 standard deviations. The ouput for the model "housing_lm_2" indicates how each variable similarly impacts the sale price. The analysis shows that the variable with the most predictive impact is square feet of the total living space, where an increase by one standard deviation of this variable is found with an increase of .37 standard deviations. 
+           
+#v  
+Calculate the confidence intervals for the parameters in your model and explain what the results indicate.
+```{r}
+confint(housing_lm_1)
+confint(housing_lm_2)
+```
+>The confidence intervals caluculated for "housing_lm_1" are based on the _b_ values of our linear model which estimate change from the mean sale price given our parameter of lot size. The smaller the range between the two values 7.29 and 9.73 adds confidence that the predictor's _b_ value is close to the population's real _b_ value. The confidence intervals calculated for "housing_lm_2" highlight a serious concern as the boundaries listed, -1.39 and 4.41 are not only farther apart than the rest, but they cross zero. This means that in some cases the number of bedrooms sometimes means an increase in sale_price and at other times, means a decrease in sale price. This is a fundamental problem of lacking directionality. For predictor to be useful in our current model, their relationship to the desired output "sale price" should at least be consistent. All other variables appear to have acceptable confidence boundaries for _b_ as they all appear to have a short range and consistent direction.   
+            
+#vi  
+Assess the improvement of the new model compared to your original model (simple regression model) by testing whether this change is significant by performing an analysis of variance.
+```{r}
+anova(housing_lm_1, housing_lm_2)
+
+```
+>The analysis shows that the second model, "housing_lm_2", at 4 degrees of freedom did perform significantly better with a p value well below 0.001.
+            
+#vii  
+Perform casewise diagnostics to identify outliers and/or influential cases, storing each function's output in a dataframe assigned to a unique variable name.
+
+```{r}
+housing_sp_vars$standardized.residuals<-rstandard(housing_lm_2)
+housing_sp_vars$studentized.residuals<-rstudent(housing_lm_2)
+housing_sp_vars$cooks.distance<-cooks.distance(housing_lm_2)
+housing_sp_vars$dfbeta<-dfbeta(housing_lm_2)
+housing_sp_vars$dffit<-dffits(housing_lm_2)
+housing_sp_vars$leverage<-hatvalues(housing_lm_2)
+housing_sp_vars$covariance.ratios<-covratio(housing_lm_2)
+
+```
+           
+            
+#viii
+Calculate the standardized residuals using the appropriate command, specifying those that are +-2, storing the results of large residuals in a variable you create.
+```{r}
+housing_sp_vars$large.residual<-
+  housing_sp_vars$standardized.residuals > 2 | housing_sp_vars$standardized.residuals < -2
+
+```
+
+#ix
+Use the appropriate function to show the sum of large residuals.
+```{r}
+sum(housing_sp_vars$large.residual)
+```
+            
+#x  
+Which specific variables have large residuals (only cases that evaluate as TRUE)?
+```{r}
+large_res<-housing_sp_vars%>%
+  filter(large.residual == 1)
+```
+            
+#xii  
+Investigate further by calculating the leverage, cooks distance, and covariance ratios. Comment on all cases that are problematic.
+
+```{r}
+#Percentage of sample with residuals over (+/-)2
+nrow(housing_wk8)
+nrow(large_res)
+322/12865*100
+
+#calculate average leverage for comparison with 4 parameters
+avg_leverage = (4+1)/12865
+avg_leverage
+
+#calculate limit(s) leverage should not exceed
+leverage_limit= avg_leverage*2
+leverage_limit
+
+leverage_limit3 = avg_leverage*3
+leverage_limit3
+
+#get count of samples over leverage limit
+large_res%>%
+  filter(leverage > leverage_limit)%>%
+  nrow()
+
+large_res%>%
+  filter(leverage > leverage_limit3)%>%
+  nrow()
+```
+> Here the calculated average leverage for our variables has been determined and doubled to create a boundary for our data. When this boundary is applied to the dataframe of large residuals, we find that 111 cases go beyond this boundary. Even if we loosen the criteria, changing the limit to 3 times the average leverage, we still find 87 cases that exceed it. These cases now include data that not only demonstrates unusually large residuals, but they are also calculated to be having a disproportionate influence on our model's outcome compared to other cases. 
+
+```{r}  
+#Search for cook's distance values that exceed 1.0 
+large_res%>%
+  filter(cooks.distance > 1)%>%
+  nrow()
+
+#Calculate upper CVR boundary
+upper_cvr = 1 + (3*(4+1)/12865)
+upper_cvr
+
+#Calculate lower CVR boundary
+lower_cvr = 1 - (3*(4+1)/12865)
+lower_cvr
+
+#Check for values outside of CVR boundaries
+large_res%>%
+  filter(covariance.ratios > upper_cvr)%>%
+  nrow()
+  
+large_res%>%
+  filter(covariance.ratios < lower_cvr)%>%
+  nrow()
+
+```
+>When reviewing the data with large residuals, no concerning data is found for cook's distance as none of the values meet or exceed 1. After calculating the average leverage as 0.00038, we find that around 124 examples that are more than twice this value, causing concern for linear model. The target for covariance ratios was found to be between .998 and 1.001.
+
+#xiii  
+Perform the necessary calculations to assess the assumption of independence and state if the condition is met or not.
+
+
+
+#xiv  
+Perform the necessary calculations to assess the assumption of no multicollinearity and state if the condition is met or not.
+            
+#xv  
+Visually check the assumptions related to the residuals using the plot() and hist() functions. Summarize what each graph is informing you of and if any anomalies are present.
+            
+#xvi  
+Overall, is this regression model unbiased? If an unbiased regression model, what does this tell us about the sample vs. the entire population model?
+
+Submission Instructions
+
+You can either save your work in your own repository and submit a link to GitHub or you can submit a PDF of your R Markdown files to the assignment link.  Make sure you do not just submit an R Markdown file – it needs to either be PDF or a GitHub link.
+
