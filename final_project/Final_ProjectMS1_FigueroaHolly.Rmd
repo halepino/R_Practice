@@ -1,0 +1,68 @@
+---
+title: "Final Project"
+author: "Holly Figueroa"
+date: "5/16/2021"
+output:
+  pdf_document: default
+  pdf: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Since the onset of the Covid-19 pandemic, the scientific and medical communities around the globe have worked at record speed to provide the public with information, guidance, and cures in the form of vaccines. As the United States works to vaccinate citizens, the willingness of citizens is a barrier. Exploring variables that may predict willingness to vaccinate may inform existing approaches in this effort, and save lives. In addition to basic census demographics, politics will be explored as well. While vaccination is not a new area distrust for many in the United States, Government leadership has added a powerful political element. Research has demonstrated the party affiliation of government leaders correlates with citizens engagement in voluntary measures such as social distancing (Grossman, 2020). As such, attitudes will also be paired with political data to explore how this dynamic might also impact vaccination efforts. In consideration of factors that could increase willingness vaccinate, exploring vulnerability of populations in terms of housing, health, and employment may also serve well. The existence of any relationships may be used to inform current and future strategies in encouraging participation.
+
+
+
+## Research questions
+
+Does a relationship exist between racial demographics and vaccination hesitancy?
+Does a relationship exist between and willingness to vaccinate and housing instability?
+Does a relationship exist between willingness to vaccinate and employment instability?
+Does a relationship exist between delayed medical care and willingness to vaccinate?
+Does a relationship exist between state party majority and willingness to vaccinate in the states they serve?
+Does a relationship exist between state presidential election outcome and willingness to vaccinate?
+
+
+## Approach
+
+First I will explore distributions of continuous variables for normality. I will also look at the distributions of data regarding opinions about Covid vaccinations. Due to the existing relationship found between republican elected leadership and voluntary safety measure, I will focus my analysis on election outcomes for this party. Percentage of candidate votes by party will be used to express party dominance and paired with relative data on vaccine attitudes based on location. This analysis may be presented at the state level, but attempts will be made to capture more nuance by using a county level. 
+
+This analysis can act to replicate existing findings as well as inform messaging strategies. Strategies used to reach, educate, and encourage higher rates of vaccination can be created. As these hesitant populations and willing populations are better-understood, these strategies can be better-tailored. 
+
+
+
+## Data  (Minimum of 3 Datasets - but no requirement on number of fields or rows)
+The first data set I intend to use comes from the [CDC]
+(https://data.cdc.gov/Vaccinations/Vaccine-Hesitancy-for-COVID-19-County-and-local-es/q9mh-h2tw/data). It is based largely on U.S. Census data, to create hesitancy score based on responses. A collection single variable datasets will be included from the [Census Bureau](https://www.census.gov/data-tools/demo/hhp/#/?measures=EVICTFOR&periodSelector=28&areaSelector=st). Their interactive page included by link allow datasets to be dowloaded with a specific variable selected accross states, at least three will used and combined into a single dataset. Data regarding election outcomes at the state and county level will also be used. The data, found on [Kaggle](https://www.kaggle.com/unanimad/us-election-2020) will be used to explore state and/or county level relationships with hesitation rates. 
+
+
+## Required Packages
+dplyr  
+ggplot2  
+ggally  
+
+
+## Plots and Table Needs
+### Frequency Distributions
+* current vaccination percentages of states
+* vaccination opinions
+### ggpairs
+### Correlation Analysis
+* racial demographics and hesitancy
+* party power and hesitancy
+* former presidential approval and hesitancy
+* vulerability measures and hesitancy
+* Multivirate analysis/ANOVA
+* summary data
+
+
+## Questions for future steps
+Data obtained by census does not directly offer information on particpant's county of origin as an added measure of annonymity assurance. Seeing the selected variables all posed at the county level would likely offer a higher level of nuance. Questions regarding vulnerability measures; those that ask if an individual is worried about housing and employment, do not directly distinguish these concerns as being Covid-19 driven. Comparing previous reports of housing and employment instability would be wise to infer these variables as motivating factors. I would hypothesize that indivuduals that experienced losses due to covid, and beleived such, they may be more motivated to seek vaccination as a step towards stability. The data available so far, does not directly distinguish this. 
+
+## References
+
+Grossman, G. (2020, September 29). Political partisanship influences behavioral responses to governors’ recommendations for COVID-19 prevention in the United States. PNAS. https://www.pnas.org/content/117/39/24144
