@@ -1,0 +1,96 @@
+---
+title: "Exercise_10.2_FigueroaHolly"
+author: "Holly Figueroa"
+date: "5/19/2021"
+output: pdf_document
+---
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+## Question 1b.i  
+__Fit a binary logistic regression model to the data set that predicts whether or not the patient survived for one year (the Risk1Y variable) after the surgery. Use the glm() function to perform the logistic regression. See Generalized Linear Models for an example. Include a summary using the summary() function in your results.__
+
+```{r}
+
+library(dplyr)
+library(stats)
+library(ggplot2)
+library(caTools)
+# Load/view csv file
+surgery_data_orig=read.csv('thorasic_surgery.csv')
+
+# Explore Data
+head(surgery_data_orig)
+ggplot(surgery_data_orig, aes(AGE, Risk1Yr)) + geom_point()
+
+#PRE5 nearly all cases over the value 50 have FALSE Risk1Yr
+ggplot(surgery_data_orig, aes(PRE5, Risk1Yr)) + geom_point()
+surgery_data_orig$PRE5_group<-as.numeric(surgery_data_orig$PRE5 >= 50)
+View(surgery_data_orig)
+
+# Make model
+surgery5_glm <- glm(Risk1Yr ~ PRE5_group + PRE6 + PRE9 + PRE17 + PRE30, data = surgery_data_orig, family= binomial())
+summary(surgery5_glm)
+
+```
+
+## Question 1b.ii
+__According to the summary, which variables had the greatest effect on the survival rate?__ 
+
+> The variables found to be associated with the largest standard deviation change in survival after one year, are called "PRE9" and "PRE17". They are also the most statistically significant according to the summary analysis with _p_ values of 0.01. 
+
+## 1b.iii 
+__To compute the accuracy of your model, use the dataset to predict the outcome variable. The percent of correct predictions is the accuracy of your model. What is the accuracy of your model?__  
+
+```{r}
+# Add column of probability of Risk1Yr based on model
+surgery_data_orig$predicted_prob<-fitted(surgery5_glm) 
+head(surgery_data_orig)
+
+# Add column of TRUE/FALSE predictions based on probability scores above .25
+surgery_data_orig$predictionTF<-if_else(surgery_data_orig$predicted_prob > .25, TRUE, FALSE)
+head(surgery_data_orig)
+
+# Choose probability threshold and compare model outcome with actual values
+confmatrix <- table(actual_value = surgery_data_orig$Risk1Yr, Prediction = surgery_data_orig$predictionTF)
+confmatrix
+
+# Accuracy
+(confmatrix[[1,1]] + confmatrix [[2,2]]) / sum(confmatrix)
+
+```
+> After gaining probabilities based on our model, and choosing a threshold, testing shows that the model was approx 82% accurate.
+
+
+## 2a.  
+__Fit a logistic regression model to the binary-classifier-data.csv dataset.The dataset (found in binary-classifier-data.csv) contains three variables; label, x, and y. The label variable is either 0 or 1 and is the output we want to predict using the x and y variables__  
+
+```{r}
+binary_dataset <- read.csv('binary-classifier-data.csv')
+head(binary_dataset)
+library(mlogit)
+binary_model <-glm(label ~ x + y, data = binary_dataset, family = binomial())
+
+
+```
+
+## 2b.i    
+__What is the accuracy of the logistic regression classifier?__  
+```{r}
+summary(binary_model)
+binary_dataset$pred_prob <-fitted(binary_model)
+binary_dataset$pred_label<-if_else(binary_dataset$pred_prob >= .50
+                                   , 1, 0)
+confmatrix2 <- table(Actual_Label = binary_dataset$label, Predicted_Label = binary_dataset$pred_label)
+confmatrix2
+(confmatrix2[[1,1]] + confmatrix2[[2,2]]) / sum(confmatrix2)
+
+
+```
+> Output for the accuracy went down when I adjusted the threshold below or above .50, leaving me to conclude the best threshold I could get was at .50 probability where that or over would be predicted as labeled 1 and under would be predicted as labeled 0. The accuracy for this model was only 58% suggesting the variables might not have a straight, linear relationship.  
+
+## 2b.ii  
+__Keep this assignment handy, as you will be comparing your results from this week to next week.__
+
