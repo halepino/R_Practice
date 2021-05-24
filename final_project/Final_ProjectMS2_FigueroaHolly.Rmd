@@ -1,0 +1,216 @@
+---
+title: "Final Project"
+author: "Holly Figueroa"
+date: "5/22/2021"
+output:
+  pdf_document: default
+  pdf: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning= FALSE, message=FALSE)
+```
+A central dataset to be used from the census bureau includes numbers of those willing to get a vaccination, once available.This table contains extra information in the first rows that will have to be skipped. Columns must also be renamed for simplicity as follows:
+
+|Column Name   |New Name|
+|---------------|---------|
+|Week | week | 
+|Area | state |
+|Total.Individual.Population. age.18 | state_adult_pop |
+|Measure.Universe | willing_sample |
+|Number | total_willing |
+|Percent.Margin.of.Error.... | pc_MoE_willing |
+|Percent | pc_willing |
+
+I will then add other variables of interest on the state level from the Pulse Survey by opening those tables, keeping selected columns to combine together later. I will create a data frame containing percentages of people from each state that report being willing to get a vaccine, those who expected income loss, those who already experienced income loss, those who expected eviction, and those who had delayed relieving medical care. The data files created to be combined together are as follows, all percentages are given at the state level:  
+
+|Data Name|Contents|
+|--|-----|
+|vaccine_willing_percents||
+|income_lost_percents|
+|exp_income_loss_percents|
+|exp_eviction_percents|
+|election2020| percentage republican votes of total state votes|
+
+A data frame of census survey variables relating to metro cities was separated out from the state data and set aside for potential use. I do not have election data at this level of measurement, however, so any analysis would not involve election variables. Data included from the census also has a first row including the United States as a whole. This was also taken out and set aside for potential reference. With all the variables combined the complete data set contains the following variables:
+
+|Variable Name |Variable Meaning|
+|-----|-----|
+|state| state|
+|pc_willing|percentage of individuals planning or willing to vaccinate once able|
+|pc_exp_income_loss|percentage of individuals that anticipated a loss of income in the next 4 weeks|
+|pc_income_lost|percentage of households where someone had a loss in employment income in the last 7 days|
+|pc_ex_eviction|percentage of individuals that expected eviction or home foreclosure in the next two months|
+|trump_percentage|percentage of votes that were won by Donald Trump out of all presidential votes cast|
+
+
+
+```{r}
+library(dplyr)
+# WILLINGNESS CHANGES
+# Open and clean willingness to vaccinate dataframe
+orig_vaccine_df <- read.csv('final_project/vaccine_will.csv', skip=1)
+head(orig_vaccine_df)
+# rename columns and view
+orig_vaccine_df <-orig_vaccine_df%>%
+  rename(week = Week, 
+         state = Area, 
+         state_adult_pop = Total.Individual.Population.age.18., 
+         willing_sample = Measure.Universe,
+         total_willing = Number, 
+         pc_MoE_willing = Percent.Margin.of.Error...., 
+         pc_willing = Percent)
+head(orig_vaccine_df)
+
+# Select columns to keep and combine with others later.
+vaccine_willing_percents <- orig_vaccine_df%>%
+  select(state, pc_willing)
+head(vaccine_willing_percents)
+
+# EXPECTED INCOME LOSS CHANGES
+# read expected loss of income due to Covid data file  
+orig_exp_income_loss_df <- read.csv('final_project/exp_income_loss.csv', skip = 1)
+head(orig_exp_income_loss_df)
+colnames(orig_exp_income_loss_df)
+
+# create percentages only data frames to combine later and rename columns
+exp_income_loss_percents <- orig_exp_income_loss_df%>%
+  select(2,7)%>%
+  rename(state = Area, pc_exp_income_loss = Percent)
+head(exp_income_loss_percents)
+
+# INCOME LOST CHANGES
+# read data on people with income lost due to Covid data file
+orig_income_lost_df <-read.csv('final_project/income_lost.csv', skip = 1)
+head(orig_income_lost_df)
+colnames(orig_income_lost_df)
+
+# create percentages only data frame to combine later and rename columns
+income_lost_percents <-orig_exp_income_loss_df%>%
+  select(2,7)%>%
+  rename(state= Area, pc_income_lost = Percent)
+head(income_lost_percents)
+
+# EXPECTED EVICTION CHANGES
+# read data file on people who anticipated eviction/foreclosure
+orig_exp_eviction_df <-read.csv('final_project/eviction_likely.csv', skip = 1)
+head(orig_exp_eviction_df)
+colnames(orig_exp_eviction_df)
+
+# create percentages only data frame to combine later and rename columns
+exp_eviction_percents <- orig_exp_eviction_df%>%
+  select(2,7)%>%
+  rename(state = Area, pc_exp_eviction = Percent)
+head(exp_eviction_percents)
+
+# DELAYED MEDICAL CARE CHANGES
+# read data file on people who delayed receiving medical care due to Covid
+orig_delayed_med_df <- read.csv('final_project/delayed_med.csv', skip = 1)
+head(orig_delayed_med_df)
+colnames(orig_delayed_med_df)
+
+#create percentages only data frame to combine later and rename columns
+delayed_med_percents <- orig_delayed_med_df%>%
+  select(2,7)%>%
+  rename(state = Area, pc_delayed_med = Percent)
+head(delayed_med_percents)
+
+# Combine data frames into one, check, and tidy
+my_data <-cbind(vaccine_willing_percents,
+                exp_income_loss_percents,
+                income_lost_percents,
+                exp_eviction_percents,
+                delayed_med_percents)
+colnames(my_data)
+
+# Take out duplicate state columns
+my_data<-my_data%>%
+  select(-3, -5, -7, -9 )
+head(my_data)
+
+# Separate out city metro data into separate file
+library(stringr)
+metro_data <- my_data%>%
+  filter(str_detect(state, "Metro"))%>%
+  rename(location = state)
+head(metro_data)
+
+# Slice out metro data from my_data
+nrow(my_data)
+my_data <- slice(my_data,c(1:52))
+
+# Separate out United States level of observation
+us_census_data <- my_data%>%
+  filter(state == "United States")
+head(us_census_data)
+
+# Slice out United States level of observations so only data on 51 states remains
+my_data <- slice(my_data, c(2:52))
+nrow(my_data)
+  
+
+
+```
+
+```{r}
+# ELECTION DATA CHANGES
+
+# PRESIDENTIAL DATA
+election2020_state_and_county <- read.csv('final_project/president_county_candidate.csv')
+head(election2020_state_and_county)
+
+# Get total pres votes by state
+election2020<-election2020_state_and_county%>%
+  group_by(state)%>%
+  summarise_at(vars(total_votes), list(total_votes = sum))
+
+# get republican pres votes by state
+rep_votes <- election2020_state_and_county%>%
+  filter(candidate == "Donald Trump")%>%
+  group_by(state)%>%
+  summarise_at(vars(total_votes), list(trump_votes = sum))%>%
+  select(trump_votes)
+
+head(rep_votes)
+
+# Combine columns: state,total presidential votes, and total presidential votes 
+election2020 <- cbind(election2020,rep_votes)
+
+# Create percentage republican presidential votes column
+election2020$trump_percentage <- (election2020$trump_votes / election2020$total_votes) * 100
+
+#Rename column to specify presidential total votes
+election2020 <- election2020%>%
+  rename(total_pres_votes = total_votes)
+head(election2020)
+
+# Explore table
+summary(election2020)
+
+```
+
+```{r}
+# COMBINE ALL VARIABLES AT THE STATE LEVEL INTO ONE DATA FRAME
+
+nrow(my_data)
+nrow(election2020)
+combined_data <- merge(x = my_data, y = election2020)
+head(combined_data)
+
+combined_data <- combined_data%>%
+  select(-trump_votes,-total_pres_votes)
+# Head final table
+head(combined_data)
+
+#Rename columns to avoid issues calling the data by shared starting text
+combined_data <- combined_data%>%
+  rename(wiling_pc = pc_willing, 
+                        exp_income_loss_pc = pc_exp_income_loss,
+                        income_lost_pc = pc_income_lost,
+                        exp_eviction_pc = pc_exp_eviction,
+                        delayed_med_pc = pc_delayed_med)
+
+head(combined_data)
+
+```
+

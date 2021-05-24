@@ -81,8 +81,7 @@ __What is the accuracy of the logistic regression classifier?__
 ```{r}
 summary(binary_model)
 binary_dataset$pred_prob <-fitted(binary_model)
-binary_dataset$pred_label<-if_else(binary_dataset$pred_prob >= .50
-                                   , 1, 0)
+binary_dataset$pred_label<-if_else(binary_dataset$pred_prob >= .50, 1, 0)
 confmatrix2 <- table(Actual_Label = binary_dataset$label, Predicted_Label = binary_dataset$pred_label)
 confmatrix2
 (confmatrix2[[1,1]] + confmatrix2[[2,2]]) / sum(confmatrix2)

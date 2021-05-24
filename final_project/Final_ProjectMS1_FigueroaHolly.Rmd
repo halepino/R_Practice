@@ -63,6 +63,33 @@ ggally
 ## Questions for future steps
 Data obtained by census does not directly offer information on particpant's county of origin as an added measure of annonymity assurance. Seeing the selected variables all posed at the county level would likely offer a higher level of nuance. Questions regarding vulnerability measures; those that ask if an individual is worried about housing and employment, do not directly distinguish these concerns as being Covid-19 driven. Comparing previous reports of housing and employment instability would be wise to infer these variables as motivating factors. I would hypothesize that indivuduals that experienced losses due to covid, and beleived such, they may be more motivated to seek vaccination as a step towards stability. The data available so far, does not directly distinguish this. 
 
+
+```{r}
+
+# SENATE DATA
+senate2020_state_and_county<- read.csv('final_project/senate_county_candidate.csv')
+head(senate2020_state_and_county)
+
+# Get total senate votes by state
+senate2020<- senate2020_state_and_county%>%
+  group_by(state)%>%
+  summarise_at(vars(total_votes), list(total_senate_votes=sum))
+
+# Get republican senate votes by state
+rep_senate_votes <- senate2020_state_and_county%>%
+  filter(party =="REP")%>%
+  group_by(state)%>%
+  summarise_at(vars(total_votes), list(rep_senate_votes = sum))%>%
+  select(rep_senate_votes)
+
+#Combine senate data
+senate2020 <- cbind(senate2020, rep_senate_votes)
+
+# Create percentage republican senate votes column
+senate2020$rep_senate_precentage <- senate2020$ /senate2020$total_senate_votes
+  
+```
+
 ## References
 
 Grossman, G. (2020, September 29). Political partisanship influences behavioral responses to governors’ recommendations for COVID-19 prevention in the United States. PNAS. https://www.pnas.org/content/117/39/24144
