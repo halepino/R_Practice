@@ -1,0 +1,266 @@
+---
+title: "Political Affiliation and Vaccine Hesitancy"
+author: "Holly Figueroa"
+date: "5/24/2021"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, include = FALSE, warning = FALSE)
+knitr::knit_hooks$set(crop = knitr::hook_pdfcrop)
+
+
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+library(psych)
+library(GGally)
+library(Hmisc)
+```
+ 
+ 
+## Introduction
+
+Since the onset of the Covid-19 pandemic, scientific and medical communities around the globe have worked at record speed to provide the public with information, guidance, and cures in the form of vaccines. As the United States works to vaccinate citizens, the willingness of citizens to do so is a barrier. The US has recorded nearly 33 million cases of Covid-19 and nearly 600,000 deaths due the virus. Recent research estimates the loss in the United States to be much higher, around 900,000 deaths(Estimation of Total Mortality Due to COVID-19, 2021). While these facts would intuitively suggest people were eager to vaccinate, data from US Census Bureau suggests many people are not ready to vaccinate. Here, measures for people's willingness to vaccinate will be explored with measures of personal impacts and hardships during the pandemic. Understanding how experiences of income loss, housing instability, and delayed medical care may shed light into the minds of those more or less willing to vaccinate. Although vaccination is not a new area distrust for many in the United States, government leadership has added a powerful political element to the 2020 pandemic. Research has since demonstrated the party affiliation of government leaders correlates with citizens engagement in voluntary measures, such as social distancing (Grossman, 2020). Therefore, election data will also be explored for possible connections to vaccination views. 
+
+
+## The Problem -Increasing Vaccination Participation   
+
+Historically, vaccination efforts to protect the public have been voluntary and have relied on public messaging and marketing to gain participation(Schwartz, 2012). With marketing as the key method for gaining cooperation in Covid-19 vaccinations, learning who to market-to is an important step requiring analysis. Without care to understand who is and who is not willing to vaccinate, any campaign to gain maximum participation will fall short. This research seeks to find correlations that may exist in the data available regarding community willingness to vaccinate, racial demographics, hardship during the pandemic, and political affiliation. Specifically, these questions include the following:
+
+* Does a relationship exist between race and vaccination hesitancy?
+* Does a relationship exist between and willingness to vaccinate and housing instability?
+* Does a relationship exist between willingness to vaccinate and income instability?
+* Does a relationship exist between delayed medical care and willingness to vaccinate?
+* Does a relationship exist between party support and willingness to vaccinate?
+
+## Approach - Identifying Features of the Vaccine-Hesitant Population
+
+To answer the questions above, two data sets were created in order to perform correlational analyses. One data set combined responses from the Census Bureau and 2020 Presidential Election outcomes at the state level. Data from the Census Bureau is based on the direct responses of the Household Pulse Survey (HPS) where individuals were asked about their willingness to vaccinate, once a vaccine was available to them. In this format, any correlations are made to "willingness to vaccinate". The Census Bureau data also includes measures of impact from Covid-19. Impacts include reports of anticipated income loss, anticipated eviction or home foreclosure, and delayed medical treatment during the pandemic. These variables combined will allow analyses to explore vaccination views and any relationships to state party support and hardships during the pandemic.
+
+The second data set was created combining data from the CDC and 2020 Presidential Election outcomes at the county level. The CDC data includes measures for "vaccine hesitancy" as opposed to "willingness". So, these terms will be used in relation to the data sets involved, when applicable. In addition to hesitancy measures, the CDC data also contains racial demographics at the county level. These variables will allow a more nuanced level of analyses of hesitancy and relationships to county party support and race. 
+
+**Measuring Party Influence**
+
+As research has shown voluntary behaviors for precautions were muted along republican party lines, focus was given to the republican party. In both data sets, election results were used to gain a measure of republican party support for the 2020 presidential race. Total votes cast for president were calculated for each state and county, respectively. From here, the percentage of total votes for republican incumbent, Donald Trump, was obtained. 
+
+## Analysis
+**County Distribution of Vaccine Hesitancy**
+
+```{r}
+# Read New File
+
+County_Data <- read.csv('hello-world/final_project/Hesitancy_Politics_County.csv')
+State_Data <- read.csv('hello-world/final_project/Willingness_Politics_State.csv')
+State_Data<-State_Data%>%
+  filter(State_Data$trump_percentage <= 100)
+head(State_Data)
+
+```
+To begin analyses, measures of "hesitancy" estimates calculated by the CDC were checked for normality. The plot below illustrates the density of CDC estimates across counties. The CDC data offer two measures for hesitancy, "hesitant" and "strongly hesitant". At a glance it can be seen that estimates of "strongly hesitant" are relatively normal in distribution. It can also be seen that "strongly hesitant" estimates are represented in a smaller range which occupies the lower end of percentages. In short, county estimations of "strongly hesitant" were generally lower percentages, peaking around eight percent. The density of "hesitant" estimates across counties, was also near normal in distribution. It can be seen the milder estimate of "hesitant" versus "strongly hesitant" occupies a wider range and more gradual incline to it's peak. In short, percentages of "hesitant" estimates were higher in relation. These characteristics also suggest measures of the "hesitant" county populations have greater variance and standard deviation.
+  
+```{r,Density Plot for Hesitancy Responses , include=TRUE, out.width="70%"}
+ggplot(County_Data) + 
+  geom_density(aes(x = Hesitant_est, fill = "Hesitant"), alpha = .2) + 
+  geom_density(aes(x = Strongly_Hesitant_est, fill = "Strongly Hesitant"), alpha = .2)+
+  ggtitle("Density of CDC Hesitancy Estimates Accross Counties") +
+  scale_x_continuous(labels = scales::percent) +
+  xlab("County Percentages") + ylab("Density")
+
+```
+  
+When distributions for both "hesitant" and "strongly hesitant" are tested for normality through use of q-q plots, the degree of normality is more visible. Estimates of "hesitant" populations are rather closely aligned to the line of normality. Estimates of "strongly hesitant" populations are shown to curve upwards at the ends. This is characteristic of the wider curve viewed in the initial density plot. These deviations from the line, represent higher frequencies than normal at either ends of the curve. As these deviations are relatively, mild, these variables may be treated as normal. 
+\newline
+
+```{r, QQ-Plots For County Hesitancy, include=TRUE, fig.show="hold", out.width= "50%"}
+
+ggqqplot(County_Data$Hesitant_est, title = 'Q-Q Plot of CDC "Hesitant" County Estimates')
+ggqqplot(County_Data$Strongly_Hesitant_est, title = 'Q-Q Plot of "Strongly Hesitant" County Estimates')  
+```
+
+
+**County Distributions of Race**
+
+Distributions of race across counties was explored. Despite having a very large sample, the qq-plots below show that race is not normally distributed across county populations. This is evidenced by the strong curving away from the line of normality plotted along the observation points, indicating a heavy positive skew for non white groups. A negative skew is evidenced by the inverse curving from the line in the q-plot for the white population. Non-normality was found for all race variables. For this reason, analyses including variables of race will require methods that do not assume normality.  
+\newline
+
+```{r, CDC race variable normality tests, include=TRUE, fig.show='hold', out.width="40%"}
+ggqqplot(County_Data$White, title = "White Population")
+ggqqplot(County_Data$Hispanic, title='Hispanic Population')
+```
+
+```{r, contd..CDC race variable normality tests, include=TRUE, fig.show='hold', out.width="40%"}
+ggqqplot(County_Data$Black, title = "Black Population")
+ggqqplot(County_Data$Asian, title = "Asian Population")
+
+```
+
+\newline
+
+**County Distribution of Election Results - Republican Party Support**  
+
+The distribution of votes awarded to republican candidate, Donald Trump, was not normal. The percentages across counties was heavily, positively skewed, at `r round(skew(County_Data$Pres_Percentage),2)` and had a positive measure of kurtosis at `r round(kurtosi(County_Data$Pres_Percentage),2 )`. For this reason, analyses conducted must not assume normality. 
+\newline
+
+```{r, Election Data County Level,include=TRUE, fig.show='hold', out.width="48%"}
+ggplot(County_Data) +
+  geom_density(aes(x =Pres_Percentage), fill = "red", alpha = .3) +
+  ggtitle("Republican Support by Percentage of Votes") +
+  xlab("State Percentages") + ylab("Density") +
+  xlim(0,100)
+
+ggqqplot(County_Data$Pres_Percentage, title = "Republican Support by Percentage of Votes")
+
+```
+
+     
+**State Distribution of "Willingness" to Vaccinate**
+
+State level data from the Census Bureau offers a single measure for "willingness" to vaccinate. When the distribution of all the state's percentages is plotted for density, we see a normal curve. At a glance, the curve indicates the average percent of citizens willing to vaccinate is below 50%. When the same data is tested for normality in a qq-plot, we see again, the data is relatively normal in distribution. 
+\newline
+
+```{r, State Data Willing Density, include = TRUE, fig.show="hold", out.width="50%"}
+
+ggplot(State_Data) +
+  geom_density(aes(x =wiling_pc), fill = "red", alpha = .3) +
+  ggtitle("Density of Census Responsdents Willing to Vaccinate Accross States") +
+  xlab("State Percentages") + ylab("Density") +
+  xlim(0,100)
+
+ggqqplot(State_Data$wiling_pc, title= 'Q-Q Plot of Census Percent "Willing to Vaccinate" Across State')
+
+```
+
+**State Distributions of Covid-19-Impacted Stability Variables**
+
+Responses from the Census Bureau's Pulse Survey regarding hardships during the pandemic were found to be relatively normal. The density plots below illustrate imperfect curves, however, measures for skewness and kurtosis were found to be within acceptable range. Expected income loss was found to have a skew of `r round(skew(State_Data$exp_income_loss_pc), 2)` and kurtosis of `r round(kurtosi(State_Data$exp_income_loss_pc), 2)`. Expected Eviction or Home Foreclosure was found to have a skew of `r round(skew(State_Data$exp_eviction_pc), 2)` and a kurtosis of `r round(kurtosi(State_Data$exp_eviction_pc), 2)`. The distribution of those who "Delayed Medical Care" was calculated to have a skew of `r round(skew(State_Data$delayed_med_pc),2)` and a kurtosis of `r round(kurtosi(State_Data$delayed_med_pc), 2)`. 
+
+It is interesting to note that averages for all three of the variables fell between 30 and 40 percent. Further illustrating the severity of Covid-19's impact, the minimum value of respondents that expected income loss across states was `r min(State_Data$exp_income_loss_pc)`%. Even higher, the minimum value of respondents that had delayed seeking medical care across states was `r min(State_Data$delayed_med_pc)`%.
+
+```{r, curve plots for normality on state stability responses, include=TRUE, fig.show='hold', out.width="33%"}
+
+ggplot(State_Data) +
+  geom_density(aes(x =exp_income_loss_pc), fill = "cadetblue", alpha = .3) +
+  ggtitle("Expected Income Loss") +
+  xlab("State Percentages") + ylab("Density") 
+  
+  
+ggplot(State_Data) +
+  geom_density(aes(x =exp_eviction_pc), fill = "cadetblue", alpha = .3) +
+  ggtitle("Risk of Eviction or Home Foreclosure") +
+  xlab("State Percentages") + ylab("Density") 
+  
+  
+ggplot(State_Data) +
+  geom_density(aes(x =delayed_med_pc), fill = "cadetblue", alpha = .3) +
+  ggtitle("Delayed Seeking Medical Care") +
+  xlab("State Percentages") + ylab("Density")
+
+```
+
+**County Variable Correlational Analyses**
+
+The first relationships explored by correlation are between the county level data. Two matrices are used to illustrate the correlations between county race and county hesitancy estimations. The first specifically looks at "Hesitant" estimates while the second looks at "strongly hesitant" estimations. There almost no difference between. These correlations were conducted in the Spearman method due to non-normality of race distributions. The highest correlations to hesitancy estimations are with the Hispanic and Asian populations. Hispanic and Asian populations were negatively correlated, meaning an increase in either of these populations within a given county, decreases in hesitancy are also found. Hispanic populations were correlated with "hesitant" estimates at -0.27 rho, and "strongly hesitant" at - 0.25 rho, respectively. Both were significant with p-values < 2.2e-16 suggesting these correlations are unlikely to change with further sampling. Asian populations were correlated with "hesitant" estimates at -0.33 rho, and "strongly hesitant" at -0.32 rho. Both again, with p-values < 2.2e-16, suggesting larger sampling would not change the correlation finding.
+
+```{r, COUNTY LEVEL ANALYSES, include=TRUE, fig.show='hold', out.width="50%"}
+
+# Hesitancy and Race
+County_Data2 <- County_Data%>% 
+  select(6,9,10,11,12,13,14)%>%
+  rename(Hesitant = Hesitant_est, Native.Am = Native_American, Pac.Island = Native_Hawaiian_Pac_Islander)
+ggcorr(County_Data2, method = c("pairwise","spearman"), label = TRUE, label_size = 5)
+
+#Strong Hesitancy and Race
+County_Data3 <- County_Data%>% 
+  select(7,9,10,11,12,13,14)%>%
+  rename(Strong.Hes = Strongly_Hesitant_est, Native.Am = Native_American, 
+         Pac.Island = Native_Hawaiian_Pac_Islander)
+ggcorr(County_Data3, method = c("pairwise","spearman"), label = TRUE, label_size = 5)
+```
+
+```{r , correlation details and p values}
+
+#Correlation details for race and hesitancy
+County_Data4 <- County_Data%>% 
+  select(6,7,9,10,11,12,13,14)
+
+#P values and Rhos
+Race_P_vals <-rcorr(as.matrix(County_Data4), type = "spearman")
+Race_P_vals$r
+Race_P_vals$P
+```
+The table below illustrates Spearman's correlations between republican votes and hesitancy data. Further analysis show that republican votes are borderline moderately correlated. Presidential votes were correlated at a rho of 0.29 with Hesitant estimates and a rho of 0.30 with Strongly Hesitant estimations by county. Both measures for rho were found to be significant with p-values far below 0.0001. This suggests that the more county votes cast for republican candidate, the more a county was estimated to be hesitant to vaccination.
+
+```{r, include = TRUE, out.width="55%"}
+
+# Correlations to Hesitancy Estimates
+# Trump Support Correlation
+County_Data5 <- County_Data%>% 
+  select(5,6,7)
+
+ggcorr(County_Data5, method = c("pairwise","spearman"), label = TRUE, label_size = 5)
+```
+
+```{r, details for election correlations}
+
+cor.test(x= County_Data$Hesitant_est, y=County_Data$Pres_Percentage, method = "spearman", exact=FALSE)
+cor.test(x= County_Data$Strongly_Hesitant_est, y=County_Data$Pres_Percentage, method = "spearman", exact=FALSE)
+
+```
+
+**State Variable Correlational Analyses**  
+
+The table below offers ample information on our variables of interest at the state level. Focusing on correlations to "willingness" to vaccinate, we find significant results with most of the variables. The highest correlation is the percentage of votes, "trump votes", which is negatively correlated with willingness to vaccinate at -0.80 with a p-value below 0.0001. The suggests that the higher proportion of votes a state had that were awarded to the republican candidate, the lower the percentage was of people willing to get vaccinations. The next highest finding was with the percentage of people who expected eviction. With a negative correlation of -0.47 and p-value under 0.0001, the result is significant. This suggests states with more housing instability have lower percentages of people willing to vaccinate. Lastly, delayed medical care has a moderate correlation to willingness to vaccinate at 0.31 and a p-value at or under 0.05. This suggests states with more people that delayed their medical care needs, had higher percentages of people willing to vaccinate. 
+
+\newline
+
+```{r, STATE LEVEL ANALYSES, include=TRUE, out.width="75%"}
+
+# Parametric Correlations
+Willingness_Politics <- State_Data%>%
+  select(-state,-income_lost_pc)%>%
+  rename(exp_income_loss = exp_income_loss_pc, exp_eviction = exp_eviction_pc, 
+         delayed_med = delayed_med_pc, Rep_Pres_Votes = trump_percentage)
+ggpairs(Willingness_Politics)
+
+```
+
+Because these finding were conducted with ggpairs, from the GGally package, the default method is a Pearson's Correlation. As the distributions in the table above show signs of skew and non-normal distribution. Follow-up correlations using non-parametric methods were conducted to make for a more robust and conclusive result. The two negative correlations returned were slightly higher, at -0.48 for "Expected Eviction" and -0.82 for "Republican Votes". The p-values for both of these results stayed below 0.001. The rho correlation found between "Delayed Medical Care" lowered to 0.24 and the p-value rose to 0.087. Making this final correlation no-longer statistically significant.
+
+```{r,}
+cor.test(Willingness_Politics$wiling_pc,Willingness_Politics$Rep_Pres_Votes, method= "spearman")
+cor.test(Willingness_Politics$wiling_pc,Willingness_Politics$delayed_med, method= "spearman", exact = FALSE)
+cor.test(Willingness_Politics$wiling_pc,Willingness_Politics$exp_eviction, method= "spearman", exact = FALSE)
+
+
+```
+
+## Implications 
+
+A strong and significant relationship was found between election data and vaccine views at the state level and county level. To have a factor such as political party -80% correlated to being willing to vaccinate, is no small concern. At worst, the implication is that government leaders have used the topic of pandemic solutions to fuel distrust and inner-party cohesion. The cost of which, has yet to be fully seen. At best, conflicting messages from leadership and qualified institutions, such as the CDC, have opened the public up to distrust along party lines, without intention. The benefit of finding a relationships to election data is that the art of "reaching" voters through messaging is vast. The knowledge that a relationship exists could be used to help tailor marketing by political identity to increase vaccinations.
+
+The analysis showed that an average 30-40% of people across the US reported hardships during the pandemic. Despite this, the average percent of people across states willing to vaccinate was under 50% leaving many at risk. It would be reasonable to assume that people with less stability of housing, income, and interrupted medical care, would be more likely to seek vaccination as a form of increased safety and stability. However, this was not the finding of the analyses for all instability measures. Income instability appears to have little-to-no relation to vaccination views. Meanwhile, populations more under threat of eviction were associated with being less willing to vaccinate. This may indicate a confounding variable at work not included in this analysis. The positive correlation for vaccinating with delayed medical care was the only positive correlation of note among the "hardship" variables. The significance of this finding was lost with when calculated more robustly. 
+
+
+## Limitations
+
+As correlation was the focus of these analysis, it is important to note that no correlation can indicate causation. The measures presented here can, however, serve further analysis. A major limitation of this work is that election data was limited to the presidential office only. Exploring other offices and the proportion of offices held by party would go much further. Exploring known correlates of party affiliation would also lend clarity to these findings. Similarly, correlates of income and housing stability, such as education, could lend clarity as well. A major limitation of the data regarding income loss and housing instability is that the survey data does not explicitly capture these hardships as being associated with the pandemic. It cannot be assumed if respondents view or associate these changes to the pandemic. This could be a distinguishing factor in how much value is placed on vaccination, if seen as step towards stability.
+
+
+## Concluding Remarks
+
+As the current administration has announced a goal of 70% vaccination, much work is to be done. As vaccinations increase, there is hope that more hesitant-minded people will be reassured enough to sign up. In the meantime, results here suggest that leadership communication to the public is not to be taken lightly. For the moment, information such as the findings here can offer local governments a template for who needs encouragement and who best to offer it.   
+
+## References
+
+Estimation of total mortality due to COVID-19. (2021, May 26). Institute for Health Metrics and Evaluation. http://www.healthdata.org/special-analysis/estimation-excess-mortality-due-covid-19-and-scalars-reported-covid-19-deaths
+
+Grossman, G. (2020, September 29). Political partisanship influences behavioral responses to governors’ recommendations for COVID-19 prevention in the United States. PNAS. https://www.pnas.org/content/117/39/24144
+
+Schwartz, J. L. (2012, January 1). New Media, Old Messages: Themes in the History of Vaccine Hesitancy and Refusal. Journal of Ethics | American Medical Association. https://journalofethics.ama-assn.org/article/new-media-old-messages-themes-history-vaccine-hesitancy-and-refusal/2012-01
+
