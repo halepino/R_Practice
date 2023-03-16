@@ -3,10 +3,10 @@
 # Date: 2021-05-03
 
 ## Set the working directory to the root of your DSC 520 directory
-setwd("C:/DataLore/R_Projects/hello-world")
+setwd("C:/DataLore/R_Projects/R_Practice")
 
 ## Load the `data/r4ds/heights.csv` to
-heights_df <- read.csv("dsc520/data/r4ds/heights.csv")
+heights_df <- read.csv("data/r4ds/heights.csv")
 
 ## Load the ggplot2 library
 library(ggplot2)
@@ -19,10 +19,10 @@ age_lm
 summary(age_lm)
 
 ## Creating predictions using `predict()`-pg268 Intro Stats Using R
-age_testlist<-age = c(18, 26, 34, 40, 48, 52, 60, 65, 75, 85)
+age_testlist<- data.frame(age = 18, 26, 34, 40, 48, 52, 60, 65, 75, 85)
 (age_testlist)
 
-age_predict_df <- data.frame(earn = predict(age_lm, age_testlist), age = age_testlist)
+age_predict_df <- data.frame(earn = predict(age_lm, new_data = age_testlist))
 (age_predict_df)
 
 ## Plot the predictions against the original data
